@@ -22,9 +22,23 @@ import json
 if __name__=="__main__":
     with open('config.json', 'r') as f:
         config = json.load(f)
-    out_dir = Path(config['release_outdir'])
-    date = config['biolabs_date']
-    meta_fp = config['biolabs_meta']
+    # out_dir = Path(config['release_outdir'])
+    # date = config['biolabs_date']
+    # meta_fp = config['biolabs_meta']
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--out-dir",
+                        type=str,
+                        help="Path to folder where results are to be saved")
+    parser.add_argument("-d", "--date",
+                        type=str,
+                        help="Date assigned to the sequencing run")
+    parser.add_argument("-m", "--metadata",
+                        type=str,
+                        help="Path to file containing biolabs metadata")
+    args = parser.parse_args()
+    out_dir = Path(args.out_dir)
+    date = args.date
+    meta_fp = args.metadata
     num_cpus = config['num_cpus']
     ref_path = config['reference_filepath']
     patient_zero = config['patient_zero']
@@ -56,6 +70,8 @@ if __name__=="__main__":
     fasta_fps = glob.glob(f"{accepted_seqs_dir}/*.fasta")
     out_fasta_fp = f"{msa_dir}/{date}_release.fa"
     all_sequences = []
+    ref_seq = SeqIO.read(ref_path, 'fasta')
+    all_sequences.append(ref_seq)
     for fp in fasta_fps:
         rec = SeqIO.read(fp, 'fasta')
         all_sequences.append(rec)
