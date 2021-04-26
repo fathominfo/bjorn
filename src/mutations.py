@@ -731,7 +731,7 @@ def get_dels_separated(x):
 
 
 def identify_replacements(cns, 
-                          meta_fp,
+                          meta_fp=None,
                           patient_zero: str='NC_045512.2', 
                           gene2pos: dict=bd.GENE2POS,
                           location: str=None,
@@ -869,7 +869,7 @@ def identify_deletions(cns,
 
 
 def identify_insertions(cns,
-                        meta_fp: str,
+                        meta_fp=None,
                         data_src: str='alab',
                         patient_zero: str='NC_045512.2',
                         gene2pos: dict=bd.GENE2POS,
