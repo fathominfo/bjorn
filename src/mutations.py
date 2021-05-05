@@ -701,7 +701,7 @@ def assign_deletion_v2(x):
     """Support function for assigning the non-specific codon coordinates (integers) for a given deletion e.g. 69/70"""
     if (x['pos_in_codon'] + x['del_len']) <= 3:
         return x['gene'] + ':DEL' + str(x['codon_num'])
-    deletion = x['gene'] + ':DEL' + str(x['codon_num']) + '/' + str(x['codon_num'] + (x['del_len']//3) - 1)
+    deletion = x['gene'] + ':DEL' + str(x['codon_num']) + '/' + str(x['codon_num'] + np.maximum(((x['del_len']//3) - 1), 1))
     return deletion
 
 
@@ -903,7 +903,7 @@ def identify_insertions(cns,
         if data_src=='alab':
             ins_seqs = (seqsdf.groupby(['type', 'mutation', 'absolute_coords', 'is_frameshift', 'gene', 'indel_len', 'relative_coords', 'prev_5nts', 'next_5nts'])
                                 .agg(samples=('idx', 'unique'),       # list of sample IDs with the deletion
-                                        num_samples=('ID', 'nunique'),
+                                        num_samples=('idx', 'nunique'),
                                         # first_detected=('date', 'min'),
                                         # last_detected=('date', 'max'),
         #                              locations=('location', uniq_locs),
