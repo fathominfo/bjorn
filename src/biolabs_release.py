@@ -38,7 +38,7 @@ if __name__=="__main__":
     args = parser.parse_args()
     out_dir = Path(args.out_dir)
     date = args.date
-    meta_fp = args.metadata
+    meta_fn = args.metadata
     num_cpus = config['num_cpus']
     ref_path = config['reference_filepath']
     patient_zero = config['patient_zero']
@@ -48,16 +48,25 @@ if __name__=="__main__":
     nonconcerning_mutations = config['nonconcerning_mutations']
     if not Path.isdir(out_dir):
         Path.mkdir(out_dir);
+    
     msa_dir = out_dir/'msa'
     if not Path.isdir(msa_dir):
         Path.mkdir(msa_dir);
-    seqs_dir = Path(out_dir/'fa')
+    seqs_dir = out_dir/'fa'
+    if not Path.isdir(seqs_dir):
+        Path.mkdir(seqs_dir);
+    print(f"Transferring FASTA from Windows to Linux subsystem")
+    transfer_fasta_cmd = f"cp /mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/FASTA_Release_Hub/* {seqs_dir}/."
+    bs.run_command(transfer_fasta_cmd)
+    print(f"Transferring metadata from Windows to Linux subsystem")
+    transfer_meta_cmd = f"cp /mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/meta_release_hub/* {out_dir}/"
+    bs.run_command(transfer_meta_cmd)
     accepted_seqs_dir = Path(out_dir/'fa_accepted')
     if not Path.isdir(accepted_seqs_dir):
         Path.mkdir(accepted_seqs_dir);
-    intro = pd.read_excel(meta_fp, sheet_name='Instructions')
-    cov = pd.read_excel(meta_fp, sheet_name='Coverage')
-    meta = pd.read_excel(meta_fp, sheet_name='Submissions', skiprows=1)
+    intro = pd.read_excel(f'{out_dir}/{meta_fn}', sheet_name='Instructions')
+    cov = pd.read_excel(f'{out_dir}/{meta_fn}', sheet_name='Coverage')
+    meta = pd.read_excel(f'{out_dir}/{meta_fn}', sheet_name='Submissions', skiprows=1)
     accepted_samples = cov.loc[cov['Uniformity of base cov.']>min_coverage, 'Biolab Trans. #'].tolist()
     meta['sample_id'] = meta['FASTA filename'].apply(lambda x : x.split('_')[1].split('.')[0]).astype(int)
     accepted_sample_filenames = meta.loc[meta['sample_id'].isin(accepted_samples), 'FASTA filename'].tolist()
@@ -114,3 +123,6 @@ if __name__=="__main__":
                                                                         nonconcerning_mutations)
     sus_muts.to_csv(out_dir/'suspicious_mutations.csv', index=False)
     print(msa_fp)
+    print(f"Transferring metadata from Windows to Linux subsystem")
+    transfer_results_cmd = f"cp -r {out_dir} /mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/Results_output_hub/."
+    bs.run_command(transfer_results_cmd)
