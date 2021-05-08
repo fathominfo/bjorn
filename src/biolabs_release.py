@@ -20,7 +20,7 @@ import json
 ## MAIN
 
 if __name__=="__main__":
-    with open('config.json', 'r') as f:
+    with open('biolab_config.json', 'r') as f:
         config = json.load(f)
     # out_dir = Path(config['release_outdir'])
     # date = config['biolabs_date']
@@ -35,20 +35,29 @@ if __name__=="__main__":
     parser.add_argument("-m", "--metadata",
                         type=str,
                         help="Path to file containing biolabs metadata")
+    parser.add_argument("-c", "--coverage", 
+                        default=80., type=float,
+                        help="Minimum threshold for percentage coverage to accept/reject each sequence")
+    parser.add_argument("-d", "--depth", 
+                        default=100., type=float,
+                        help="Minimum threshold for average depth per nucleotide position to accept/reject each sequence")
     args = parser.parse_args()
     out_dir = Path(args.out_dir)
     date = args.date
     meta_fn = args.metadata
+    min_coverage = args.coverage
+    min_depth = args.depth
+    fasta_hub = config['fasta_hub']
+    meta_hub = config['meta_hub']
+    results_hub = config['results_hub']
     num_cpus = config['num_cpus']
     ref_path = config['reference_filepath']
     patient_zero = config['patient_zero']
-    min_coverage = config['min_coverage']
-    # msa_fp = config['msa_filepath']
     nonconcerning_genes = config['nonconcerning_genes']
     nonconcerning_mutations = config['nonconcerning_mutations']
+    # create folders for all results
     if not Path.isdir(out_dir):
         Path.mkdir(out_dir);
-    
     msa_dir = out_dir/'msa'
     if not Path.isdir(msa_dir):
         Path.mkdir(msa_dir);
@@ -56,10 +65,10 @@ if __name__=="__main__":
     if not Path.isdir(seqs_dir):
         Path.mkdir(seqs_dir);
     print(f"Transferring FASTA from Windows to Linux subsystem")
-    transfer_fasta_cmd = f"cp /mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/FASTA_Release_Hub/* {seqs_dir}/."
+    transfer_fasta_cmd = f"cp {fasta_hub}/* {seqs_dir}/."
     bs.run_command(transfer_fasta_cmd)
     print(f"Transferring metadata from Windows to Linux subsystem")
-    transfer_meta_cmd = f"cp /mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/meta_release_hub/* {out_dir}/"
+    transfer_meta_cmd = f"cp {meta_hub}/* {out_dir}/gisaid_metadata_release.xls"
     bs.run_command(transfer_meta_cmd)
     accepted_seqs_dir = Path(out_dir/'fa_accepted')
     if not Path.isdir(accepted_seqs_dir):
@@ -67,12 +76,13 @@ if __name__=="__main__":
     intro = pd.read_excel(f'{out_dir}/{meta_fn}', sheet_name='Instructions')
     cov = pd.read_excel(f'{out_dir}/{meta_fn}', sheet_name='Coverage')
     meta = pd.read_excel(f'{out_dir}/{meta_fn}', sheet_name='Submissions', skiprows=1)
-    accepted_samples = cov.loc[cov['Uniformity of base cov.']>min_coverage, 'Biolab Trans. #'].tolist()
+    qc_filter = (cov['pct_coverage']>min_coverage) & (cov['avg_depth']>min_depth)
+    accepted_samples = cov.loc[qc_filter, 'Biolab Trans. #'].tolist()
     meta['sample_id'] = meta['FASTA filename'].apply(lambda x : x.split('_')[1].split('.')[0]).astype(int)
     accepted_sample_filenames = meta.loc[meta['sample_id'].isin(accepted_samples), 'FASTA filename'].tolist()
     meta = meta.loc[meta['sample_id'].isin(accepted_samples)].drop(columns=['sample_id'])
     meta[['Gender', 'Patient age', 'Patient status']] = 'N/A'
-    meta.to_csv(f'{out_dir}/raw_gisaid_metadata.csv', index=False)
+    meta.to_csv(f'{out_dir}/gisaid_metadata_raw.csv', index=False)
     for sample_filename in accepted_sample_filenames:
         copy(f'{seqs_dir}/{sample_filename}', accepted_seqs_dir)
     copy(ref_path, accepted_seqs_dir)
@@ -85,11 +95,6 @@ if __name__=="__main__":
         rec = SeqIO.read(fp, 'fasta')
         all_sequences.append(rec)
     SeqIO.write(all_sequences, out_fasta_fp, 'fasta')
-    # seqs_fp = bs.concat_fasta(accepted_seqs_dir, msa_dir/out_dir.basename());
-    # load concatenated sequences
-    # cns_seqs = SeqIO.parse(msa_dir/out_dir.basename()+'.fa', 'fasta')
-    # cns_seqs = list(cns_seqs)
-    # print(len(cns_seqs))
     msa_fp = out_fasta_fp.split('.')[0] + '_aligned.fa'
     if not Path.isfile(Path(msa_fp)):
         msa_fp = bs.align_fasta(out_fasta_fp, msa_fp, num_cpus=num_cpus);
@@ -124,5 +129,5 @@ if __name__=="__main__":
     sus_muts.to_csv(out_dir/'suspicious_mutations.csv', index=False)
     print(msa_fp)
     print(f"Transferring metadata from Windows to Linux subsystem")
-    transfer_results_cmd = f"cp -r {out_dir} /mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/Results_output_hub/."
+    transfer_results_cmd = f"cp -r {out_dir} {results_hub}/."
     bs.run_command(transfer_results_cmd)
