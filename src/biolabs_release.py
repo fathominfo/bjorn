@@ -29,7 +29,7 @@ if __name__=="__main__":
     parser.add_argument("-o", "--out-dir",
                         type=str,
                         help="Path to folder where results are to be saved")
-    parser.add_argument("-d", "--date",
+    parser.add_argument("--date",
                         type=str,
                         help="Date assigned to the sequencing run")
     parser.add_argument("-m", "--metadata",
