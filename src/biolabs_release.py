@@ -98,6 +98,7 @@ if __name__=="__main__":
     for fp in fasta_fps:
         rec = SeqIO.read(fp, 'fasta')
         rec.id = meta.loc[meta['FASTA filename']==os.path.basename(fp), 'Virus name'].values[0]
+        rec.description = ""
         all_sequences.append(rec)
     SeqIO.write(all_sequences, out_fasta_fp, 'fasta')
     msa_fp = out_fasta_fp.split('.')[0] + '_aligned.fa'
