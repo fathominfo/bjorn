@@ -1,10 +1,10 @@
 {
-    "submitter": "",
-    "fasta_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/FASTA_Release_Hub",
+    "submitter": "issa81",
+    "fasta_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/FASTA_release_hub",
     "meta_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/meta_release_hub",
     "results_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/Results_output_hub",
     "num_cpus": "4",
-    "reference_filepath": "/Users/al/Documents/scripps/data/hcov19/NC045512.fasta",
+    "reference_filepath": "/home/issa81/bjorn/data/NC045512.fasta",
     "patient_zero": "NC_045512.2",
     "nonconcerning_genes": ["5UTR", "3UTR"],
     "nonconcerning_mutations": ["ORF8:Q27*"]
