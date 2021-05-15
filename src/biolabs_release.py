@@ -57,8 +57,10 @@ if __name__=="__main__":
     nonconcerning_genes = config['nonconcerning_genes']
     nonconcerning_mutations = config['nonconcerning_mutations']
     # create folders for all results
-    if not Path.isdir(out_dir):
-        Path.mkdir(out_dir);
+    if Path.isdir(out_dir):
+        rm_cmd = f"rm -r {out_dir}"
+        bs.run_command(rm_cmd)
+    Path.mkdir(out_dir);
     msa_dir = out_dir/'msa'
     if not Path.isdir(msa_dir):
         Path.mkdir(msa_dir);
@@ -87,7 +89,7 @@ if __name__=="__main__":
     meta.to_csv(f'{out_dir}/{date}_gisaid_metadata_raw.csv', index=False)
     for sample_filename in accepted_sample_filenames:
         copy(f'{seqs_dir}/{sample_filename}', accepted_seqs_dir)
-    copy(ref_path, accepted_seqs_dir)
+    # copy(ref_path, accepted_seqs_dir)
     fasta_fps = glob.glob(f"{accepted_seqs_dir}/*.fasta")
     out_fasta_fp = f"{msa_dir}/{date}_release.fa"
     all_sequences = []
@@ -95,6 +97,7 @@ if __name__=="__main__":
     all_sequences.append(ref_seq)
     for fp in fasta_fps:
         rec = SeqIO.read(fp, 'fasta')
+        rec.id = meta.loc[meta['sample_id']==os.basename(fp).split('.')[0], 'Virus name'].values[0]
         all_sequences.append(rec)
     SeqIO.write(all_sequences, out_fasta_fp, 'fasta')
     msa_fp = out_fasta_fp.split('.')[0] + '_aligned.fa'
