@@ -47,6 +47,7 @@ if __name__=="__main__":
     meta_fn = args.metadata
     min_coverage = args.coverage
     min_depth = args.depth
+    submitter = config['submitter']
     fasta_hub = config['fasta_hub']
     meta_hub = config['meta_hub']
     results_hub = config['results_hub']
@@ -78,11 +79,12 @@ if __name__=="__main__":
     meta = pd.read_excel(f'{out_dir}/{date}_gisaid_metadata_release.xls', sheet_name='Submissions', skiprows=1)
     qc_filter = (cov['pct_coverage']>min_coverage) & (cov['avg_depth']>min_depth)
     accepted_samples = cov.loc[qc_filter, 'Biolab Trans. #'].tolist()
-    meta['sample_id'] = meta['FASTA filename'].apply(lambda x : x.split('_')[1].split('.')[0]).astype(int)
+    meta['sample_id'] = meta['FASTA filename'].apply(lambda x : x.split('.')[0]).astype(int)
     accepted_sample_filenames = meta.loc[meta['sample_id'].isin(accepted_samples), 'FASTA filename'].tolist()
     meta = meta.loc[meta['sample_id'].isin(accepted_samples)].drop(columns=['sample_id'])
     meta[['Gender', 'Patient age', 'Patient status']] = 'N/A'
-    meta.to_csv(f'{out_dir}/gisaid_metadata_raw.csv', index=False)
+    meta['Submitter'] = submitter
+    meta.to_csv(f'{out_dir}/{date}_gisaid_metadata_raw.csv', index=False)
     for sample_filename in accepted_sample_filenames:
         copy(f'{seqs_dir}/{sample_filename}', accepted_seqs_dir)
     copy(ref_path, accepted_seqs_dir)
