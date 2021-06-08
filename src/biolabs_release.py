@@ -137,3 +137,15 @@ if __name__=="__main__":
     print(f"Transferring metadata from Windows to Linux subsystem")
     transfer_results_cmd = f"cp -r {out_dir} {results_hub}/."
     bs.run_command(transfer_results_cmd)
+    while True:
+        clean_msa_fp = f"{out_dir}/{date}_release_aligned_clean.fa"
+        data = input("Please clean the alignment file and save as {clean_msa_fp}")
+        if not Path.isfile(Path(clean_msa_fp)):
+            print("I was not able to find the file containing the cleaned alignment. Please ensure that it exists.")
+            continue
+        else:
+            aln_cmd = f"bash scripts convert_to_unaligned_fasta.sh {clean_msa_fp} > {clean_msa_fp.replace('aligned', '')}"
+            bs.run_command((aln_cmd))
+    transfer_clean_fasta_cmd = f"cp {clean_msa_fp} {results_hub}/msa/."
+    bs.run_command(transfer_clean_fasta_cmd)
+    print(f"Processing Complete. Please process to the final manual upload steps")
