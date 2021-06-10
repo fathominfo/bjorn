@@ -145,7 +145,7 @@ if __name__=="__main__":
             print("I was not able to find the file containing the cleaned alignment. Please ensure that it exists.")
             continue
         else:
-            aln_cmd = f"bash scripts/convert_to_unaligned_fasta.sh {clean_msa_fp} > {clean_msa_fp.replace('aligned', '')}"
+            aln_cmd = f"bash scripts/convert_to_unaligned_fasta.sh {clean_msa_fp} > {clean_msa_fp.replace('_aligned', '')}"
             bs.run_command((aln_cmd))
             break
     
