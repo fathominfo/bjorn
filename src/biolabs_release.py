@@ -139,13 +139,15 @@ if __name__=="__main__":
     bs.run_command(transfer_results_cmd)
     while True:
         clean_msa_fp = f"{out_dir}/{date}_release_aligned_clean.fa"
-        data = input("Please clean the alignment file and save as {clean_msa_fp}")
+        data = input("Please clean the alignment file and save as {clean_msa_fp} inside the msa folder")
         if not Path.isfile(Path(clean_msa_fp)):
             print("I was not able to find the file containing the cleaned alignment. Please ensure that it exists.")
             continue
         else:
-            aln_cmd = f"bash scripts convert_to_unaligned_fasta.sh {clean_msa_fp} > {clean_msa_fp.replace('aligned', '')}"
+            aln_cmd = f"bash scripts/convert_to_unaligned_fasta.sh {clean_msa_fp} > {clean_msa_fp.replace('aligned', '')}"
             bs.run_command((aln_cmd))
-    transfer_clean_fasta_cmd = f"cp {clean_msa_fp} {results_hub}/msa/."
+            break
+    results_dirname = out_dir.split('/')[-1]
+    transfer_clean_fasta_cmd = f"cp {clean_msa_fp} {results_hub}/{results_dirname}/msa/."
     bs.run_command(transfer_clean_fasta_cmd)
     print(f"Processing Complete. Please process to the final manual upload steps")
