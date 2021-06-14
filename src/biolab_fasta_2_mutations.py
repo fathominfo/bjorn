@@ -54,7 +54,6 @@ if __name__=="__main__":
     print(f"Transferring FASTA from Windows to Linux subsystem")
     transfer_fasta_cmd = f"cp {fasta_hub}/* {seqs_dir}/."
     bs.run_command(transfer_fasta_cmd)
-    fasta_fps = glob.glob(f"{accepted_seqs_dir}/*.fasta")
     out_fasta_fp = f"{msa_dir}/{date}_release.fa"
     all_sequences = []
     ref_seq = SeqIO.read(ref_path, 'fasta')
