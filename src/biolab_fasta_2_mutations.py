@@ -35,7 +35,7 @@ if __name__=="__main__":
     args = parser.parse_args()
     out_dir = Path(args.out_dir)
     date = args.date
-    fasta_hub = config['fasta_hub']
+    fasta_hub = config['raw_fasta_hub']
     results_hub = config['mutations_hub']
     num_cpus = config['num_cpus']
     ref_path = config['reference_filepath']
