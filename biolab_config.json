@@ -3,6 +3,7 @@
     "fasta_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/FASTA_release_hub",
     "meta_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/meta_release_hub",
     "results_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/GISAID_Sequence_Release/Results_output_hub",
+    "mutations_hub": "/mnt/c/Users/biolab/Desktop/Scripps_project/FASTA_2_mutations_bjorn",
     "num_cpus": "4",
     "reference_filepath": "/home/issa81/bjorn/data/NC045512.fasta",
     "patient_zero": "NC_045512.2",
