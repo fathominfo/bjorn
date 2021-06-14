@@ -58,6 +58,7 @@ if __name__=="__main__":
     all_sequences = []
     ref_seq = SeqIO.read(ref_path, 'fasta')
     all_sequences.append(ref_seq)
+    fasta_fps = glob.glob(f"{seqs_dir}/*.fasta")
     for fp in fasta_fps:
         rec = SeqIO.read(fp, 'fasta')
         all_sequences.append(rec)
