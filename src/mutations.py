@@ -569,7 +569,7 @@ def get_ref_codon(x, ref_seq, gene2pos: dict):
 def get_alt_codon(x, seqs: dict):
     "Support function for fetching the alternative codon"
     try:
-        seq = seqs[x['idx']].replace('-', '')
+        seq = seqs[x['idx']]
         codon_start = x['codon_start']
         return seq[codon_start:codon_start+3].upper()
     except:
