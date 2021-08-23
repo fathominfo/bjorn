@@ -426,10 +426,6 @@ def identify_insertions_per_sample(cns,
         # filter our substitutions in non-gene positions
         seqsdf.loc[seqsdf['gene']=='nan', 'gene'] = 'Non-coding region'
         # compute codon number of each substitution
-        if 'codon_num' not in seqsdf:
-            print("'codon_num' not in seqsdf", seqsdf.size)
-            import pdb
-            pdb.set_trace()
         seqsdf['codon_num'] = seqsdf.apply(compute_codon_num, args=(gene2pos,), axis=1)
         # fetch the reference codon for each substitution
         seqsdf['ref_codon'] = seqsdf.apply(get_ref_codon, args=(ref_seq, gene2pos), axis=1)
