@@ -398,9 +398,6 @@ def identify_insertions_per_sample(cns,
                                columns=['sequence'])
                     .reset_index()
                     .rename(columns={'index': 'idx'}))
-        if seqsdf.size == 0:
-            print(f"No insertions found in any of the sequences in the alignment. Output will contain an empty dataframe")
-            return seqsdf, ref_seq
         seqsdf['seq_len'] = seqsdf['sequence'].str.len()
         # identify contiguous insertions 
         seqsdf['ins_positions'] = seqsdf['sequence'].apply(find_insertions, args=(insert_positions,))
@@ -413,6 +410,9 @@ def identify_insertions_per_sample(cns,
         seqsdf['ins_len'] = seqsdf['ins_positions'].apply(len)
         # only consider insertions longer than 2nts
         seqsdf = seqsdf[seqsdf['ins_len'] >= min_ins_len]
+        if seqsdf.size == 0:
+            print(f"No insertions have the minimum length. Output will contain an empty dataframe")
+            return seqsdf, ref_seq
         # fetch coordinates of each insertion
         seqsdf['relative_coords'] = seqsdf['ins_positions'].apply(get_indel_coords)
         seqsdf['absolute_coords'] = seqsdf['relative_coords'].apply(adjust_coords, args=(start_pos,))
@@ -426,6 +426,10 @@ def identify_insertions_per_sample(cns,
         # filter our substitutions in non-gene positions
         seqsdf.loc[seqsdf['gene']=='nan', 'gene'] = 'Non-coding region'
         # compute codon number of each substitution
+        if 'codon_num' not in seqsdf:
+            print("'codon_num' not in seqsdf", seqsdf.size)
+            import pdb
+            pdb.set_trace()
         seqsdf['codon_num'] = seqsdf.apply(compute_codon_num, args=(gene2pos,), axis=1)
         # fetch the reference codon for each substitution
         seqsdf['ref_codon'] = seqsdf.apply(get_ref_codon, args=(ref_seq, gene2pos), axis=1)
