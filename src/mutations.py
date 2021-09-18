@@ -410,6 +410,9 @@ def identify_insertions_per_sample(cns,
         seqsdf['ins_len'] = seqsdf['ins_positions'].apply(len)
         # only consider insertions longer than 2nts
         seqsdf = seqsdf[seqsdf['ins_len'] >= min_ins_len]
+        if seqsdf.size == 0:
+            print(f"No insertions have the minimum length. Output will contain an empty dataframe")
+            return seqsdf, ref_seq
         # fetch coordinates of each insertion
         seqsdf['relative_coords'] = seqsdf['ins_positions'].apply(get_indel_coords)
         seqsdf['absolute_coords'] = seqsdf['relative_coords'].apply(adjust_coords, args=(start_pos,))
@@ -445,7 +448,7 @@ def identify_insertions_per_sample(cns,
             meta = pd.read_csv(meta_fp)
             seqsdf = pd.merge(seqsdf, meta, left_on='idx', right_on='fasta_hdr')
             # clean and process sample collection dates
-            seqsdf = seqsdf.loc[(seqsdf['collection_date']!='Unknown') 
+            seqsdf = seqsdf.loc[(seqsdf['collection_date']!='Unknown')
                         & (seqsdf['collection_date']!='1900-01-00')]
             seqsdf.loc[seqsdf['collection_date'].str.contains('/'), 'collection_date'] = seqsdf['collection_date'].apply(lambda x: x.split('/')[0])
             seqsdf['date'] = pd.to_datetime(seqsdf['collection_date'])
