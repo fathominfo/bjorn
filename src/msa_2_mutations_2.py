@@ -77,9 +77,12 @@ def process_mutations(alignment_filepath, patient_zero, output_path, data_src='g
   # QC FILTER: remove seqs with >500 nt deletions
   # dels = dels.loc[dels['del_positions'].str.len()<500]
 
-  print(inserts.shape)
-  print(subs.shape)
-  print(dels.shape)
+  rows, cols = inserts.shape
+  print(f'{rows:,} rows, {cols:,} cols in insertions')
+  rows, cols = subs.shape
+  print(f'{rows:,} rows, {cols:,} cols in substitutions')
+  rows, cols = dels.shape
+  print(f'{rows:,} rows, {cols:,} cols in deletions')
 
   # muts = pd.concat([subs, dels])
   muts = pd.concat([inserts, subs, dels])
@@ -108,7 +111,9 @@ def process_mutations(alignment_filepath, patient_zero, output_path, data_src='g
     print(f'adding empty column for {missing}')
     muts[missing] = ''
 
-  print(muts.shape)
+  rows, cols = muts.shape
+  print(f'{rows:,} rows, {cols:,} cols in combined mutations output')
+
   # muts = muts.astype(str) TAKES FOREVER
   # muts_filename = alignment_filepath.replace('.aligned.fasta', f'_{date}.mutations.csv')
 
