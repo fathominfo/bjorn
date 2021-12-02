@@ -76,13 +76,37 @@ def process_mutations(alignment_filepath, patient_zero, output_path, data_src='g
 
   # QC FILTER: remove seqs with >500 nt deletions
   # dels = dels.loc[dels['del_positions'].str.len()<500]
+
   print(inserts.shape)
   print(subs.shape)
   print(dels.shape)
+
   # muts = pd.concat([subs, dels])
   muts = pd.concat([inserts, subs, dels])
+
+  # make sure we have the expected columns, because if there are
+  # no insertions (or deletions, or substitutions for that matter),
+  # those columns will be missing
+  expected_columns = [
+    'absolute_coords', 'alt_aa', 'alt_codon', 'codon_num', 'codon_start',
+    'del_len', 'del_positions', 'del_seq', 'deletion_codon_coords',
+    'gene', 'gene_start_pos', 'idx', 'ins_len', 'ins_positions',
+    'is_frameshift', 'is_synonymous', 'mutation', 'next_5nts',
+    'pos', 'pos_in_codon', 'prev_5nts', 'ref_aa', 'ref_codon',
+    'relative_coords', 'replacements', 'seq_len', 'type'
+  ]
+  missing_columns = set(expected_columns)
+  for col in muts.columns:
+    missing_columns.remove(col)
+
+  # add empty columns for the missing fellers
+  for missing in missing_columns:
+    print(f'adding empty column for {missing}')
+    muts[missing] = ''
+
   muts['is_synonymous'] = False
   muts.loc[muts['ref_aa']==muts['alt_aa'], 'is_synonymous'] = True
+
   print(muts.shape)
   # muts = muts.astype(str) TAKES FOREVER
   # muts_filename = alignment_filepath.replace('.aligned.fasta', f'_{date}.mutations.csv')
