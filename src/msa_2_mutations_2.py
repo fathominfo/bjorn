@@ -84,6 +84,10 @@ def process_mutations(alignment_filepath, patient_zero, output_path, data_src='g
   # muts = pd.concat([subs, dels])
   muts = pd.concat([inserts, subs, dels])
 
+  # create the is_synonymous column by comparing ref_aa with alt_aa
+  muts['is_synonymous'] = False
+  muts.loc[muts['ref_aa']==muts['alt_aa'], 'is_synonymous'] = True
+
   # make sure we have the expected columns, because if there are
   # no insertions (or deletions, or substitutions for that matter),
   # those columns will be missing
@@ -103,9 +107,6 @@ def process_mutations(alignment_filepath, patient_zero, output_path, data_src='g
   for missing in missing_columns:
     print(f'adding empty column for {missing}')
     muts[missing] = ''
-
-  muts['is_synonymous'] = False
-  muts.loc[muts['ref_aa']==muts['alt_aa'], 'is_synonymous'] = True
 
   print(muts.shape)
   # muts = muts.astype(str) TAKES FOREVER
