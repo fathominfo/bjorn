@@ -2,6 +2,7 @@
 
 import argparse
 import csv
+import gzip
 import lzma
 import time
 
@@ -15,14 +16,23 @@ import mutations as bm
 import data as bd
 
 
-''' Hacked up from the version in bjorn_support to do xz.
+''' Hacked up from the version in bjorn_support to do xz and gz.
+    If the extension is neither xz nor gz, will try to open as text.
 '''
-def open_fasta_xz(fasta_filepath, is_aligned=False):
-  handle = lzma.open(fasta_filepath, "rt")
+def open_fasta_xz_gz(fasta_filepath, is_aligned=False):
+  _, extension = os.path.splitext(fasta_filepath)
+  if extension == 'xz':
+    handle = lzma.open(fasta_filepath, "rt")
+  elif extension == 'gz':
+    handle = gzip.open(fasta_filepath, "rt")
+  else:
+    handle = open(fasta_filepath, "rt")
+
   if is_aligned:
     cns = AlignIO.read(handle, 'fasta')
   else:
     cns = SeqIO.parse(handle, 'fasta')
+
   # for record in cns:
   #   print(record.id)
   return handle, cns
@@ -34,7 +44,7 @@ def process_mutations(alignment_filepath, patient_zero, output_path, data_src='g
   print(f"Loading alignment file at {alignment_filepath}")
   t0 = time.time()
   # msa_data = bs.load_fasta(alignment_filepath, is_aligned=True, is_gzip=False)
-  msa_stream, msa_data = open_fasta_xz(alignment_filepath, is_aligned=True)
+  msa_stream, msa_data = open_fasta_xz_gz(alignment_filepath, is_aligned=True)
   msa_load_time = time.time() - t0
 
   print("Identifying insertions...")
