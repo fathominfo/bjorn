@@ -4,6 +4,7 @@ import argparse
 import csv
 import gzip
 import lzma
+import os
 import time
 
 import pandas as pd
