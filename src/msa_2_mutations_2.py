@@ -22,9 +22,9 @@ import data as bd
 '''
 def open_fasta_xz_gz(fasta_filepath, is_aligned=False):
   _, extension = os.path.splitext(fasta_filepath)
-  if extension == 'xz':
+  if extension == '.xz':
     handle = lzma.open(fasta_filepath, "rt")
-  elif extension == 'gz':
+  elif extension == '.gz':
     handle = gzip.open(fasta_filepath, "rt")
   else:
     handle = open(fasta_filepath, "rt")
